@@ -13,7 +13,11 @@ class TfliteBackend(Backend):
     def __init__(self, name, device="tpu"):
         super(TfliteBackend, self).__init__(name)
         self.precision = "int8" if device=="tpu" else "fp32"
+        self.accelerator = "Edge TPU" if device=="tpu" else ""
     
+    def get_accelerator(self):
+        return self.accelerator
+
     def name(self):
         return self.name
     

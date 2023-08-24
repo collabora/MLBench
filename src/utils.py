@@ -182,9 +182,9 @@ def get_coral_stats(output_queue, stop_event):
     while not stop_event.is_set():
         tpu_freq = sensors.handle_coral_dev_board_tpu_freq()[0]
         cpu_freq = sensors.handle_coral_dev_board_cpu_freq()
-        temp = sensors.handle_coral_dev_board_temp()
+        temp = sensors.handle_coral_dev_board_temp()[0]
         cpu_usage = sensors.get_cpu_usage()
-        ram_usage = sensors.get_memory_usage()
+        ram_usage = sensors.get_memory_usage()[0]
         output_queue.put((cpu_usage, ram_usage, temp, tpu_freq, cpu_freq))
     
 
@@ -195,3 +195,19 @@ def get_stats_rockpi(output_queue, stop_event):
         ram_usage = sensors.get_memory_usage()[0]
         temp = np.sum(sensors.handle_firefly_rk3399_temp())/2
         output_queue.put((cpu_usage, ram_usage, temp/1000, cpu_freq))
+
+
+def parse_power_response(response):
+    vbus = response["vbus"]
+    ibus = response["ibus"]
+    volts = vbus["vbus1"]
+    mAmps = ibus["ibus1"]
+
+    power = [volts * mAmps * 1000 for volts, mAmps in zip(volts, mAmps)]
+
+    return np.array(power)
+
+
+# TODO: upload models to drive and auto-download
+def download_model(model_name, backend):
+    return model_path

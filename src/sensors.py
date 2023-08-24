@@ -1,5 +1,6 @@
 import time
 import psutil
+import requests
 
 
 def handle_coral_dev_board_temp():
@@ -36,13 +37,13 @@ def handle_coral_dev_board_cpu_freq():
     cpu3_freq = 0
 
     with open(r"/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq") as f:
-        cpu0_freq = float(f.readline())
+        cpu0_freq = float(f.readline()) / 1000.0
     with open(r"/sys/devices/system/cpu/cpu1/cpufreq/scaling_cur_freq") as f:
-        cpu1_freq = float(f.readline())
+        cpu1_freq = float(f.readline()) / 1000.0
     with open(r"/sys/devices/system/cpu/cpu2/cpufreq/scaling_cur_freq") as f:
-        cpu2_freq = float(f.readline())
+        cpu2_freq = float(f.readline()) / 1000.0
     with open(r"/sys/devices/system/cpu/cpu3/cpufreq/scaling_cur_freq") as f:
-        cpu3_freq = float(f.readline())
+        cpu3_freq = float(f.readline()) / 1000.0
     return [cpu0_freq, cpu1_freq, cpu2_freq, cpu3_freq]
 
 
@@ -100,3 +101,14 @@ def handle_coral_dev_board_cpu_times():
 def handle_coral_dev_board_cpu_stats():
     return psutil.cpu_stats()
 
+
+def start_PAC1931():
+    url = "http://192.168.42.151:8096/power-start"
+    response = requests.get(url)
+    return response.json()
+
+
+def stop_PAC1931():
+    url = "http://192.168.42.151:8096/power-stop"
+    response = requests.get(url)
+    return response.json()

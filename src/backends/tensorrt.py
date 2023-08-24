@@ -25,7 +25,11 @@ class TRTBackend(Backend):
         """
         super(TRTBackend, self).__init__(name)
         self.precision = "fp32" if precision is None else precision
+        self.accelerator = utils.build_and_run_device_query()
     
+    def get_accelerator(self):
+        return self.accelerator
+
     def name(self):
         return self.name
     

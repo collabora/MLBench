@@ -5,6 +5,7 @@ import os
 import numpy as np
 import time
 import requests
+import sensors
 
 
 def main(args):
@@ -36,8 +37,11 @@ def main(args):
         preprocess_func = backend.get_preprocess_func(args.model_name)
     else:
         preprocess_func = utils.preprocess_img
+    
+    if args.count:
+        jpeg_files_list = jpeg_files_list[:args.count]
 
-    for filename in tqdm(jpeg_files_list[:args.count], desc="Preprocessing", unit="image"):
+    for filename in tqdm(jpeg_files_list, desc="Preprocessing", unit="image"):
         if not filename.lower().endswith('.jpeg'):
             continue
         jpeg_path = os.path.join(args.imagenet, filename)
@@ -72,6 +76,8 @@ def main(args):
     if args.count is not None:
         npy_arrays = npy_arrays[:args.count]
 
+    # start power measuring
+    response = sensors.start_PAC1931()
     print(f"start time---- {time.localtime()}")
     for npy_arr in tqdm(npy_arrays,  desc="Running inference"):
         inputs = np.load(os.path.join(args.preprocessed_dir, npy_arr))
@@ -84,7 +90,9 @@ def main(args):
         else:
             accuracy.append(0)
     print(f"end time---- {time.localtime()}")
-    
+    response = sensors.stop_PAC1931()
+    power = utils.parse_power_response(response)
+
     backend.stop_event.set()
     backend.destroy()
 
@@ -98,7 +106,7 @@ def main(args):
     data_dict = {}
     data_dict["system"] = utils.get_device_model()
     data_dict["processor"] = utils.get_cpu()
-    data_dict["accelerator"] = utils.build_and_run_device_query() if args.backend in ["tensorrt"] else ""
+    data_dict["accelerator"] = backend.get_accelerator()
     data_dict["model_name"] = backend.model_name
     data_dict["framework"] = f"{args.backend}"
     data_dict["latency"] = round(float(np.sum(np_lat)/len(np_lat))*1000, 3)
@@ -106,12 +114,12 @@ def main(args):
     data_dict["accuracy"] = round(float(np.count_nonzero(np_acc == 1)/len(np_acc))*100, 3)
     data_dict["cpu"] = float(round(np.average(stats["cpu"]), 2)) if "cpu" in stats else ""
     data_dict["memory"] = float(round(np.average(stats["memory"]), 2)) if "memory" in stats else ""
-    data_dict["power"] = ""
+    data_dict["power"] = float(round(np.average(power), 2)) if len(power) else ""
     data_dict["temperature"] = float(round(np.average(stats["temperature"]), 2)) if "temperature" in stats else ""
     print(data_dict)
 
-    # TODO: send data dict to db
-
+    response = post(data_dict, url="http://transcription.kurg.org:27017/bench/insert")
+    
     # Write the dictionary to the JSON file
     import json
     if not os.path.exists(os.path.join(args.results_dir, args.model_name)):
@@ -119,17 +127,26 @@ def main(args):
     with open(os.path.join(args.results_dir, args.model_name, "results.json"), 'w') as json_file:
         json.dump(data_dict, json_file)
 
-    # TODO: send cpu_util(has percentage usage per core for the whole run)
+    # Send detailed metrics to the db
+    data_dict = {}
+    data_dict["benchmark_id"] = response["benchmark_id"]
+    data_dict["cpu_usage"] = stats["cpu"].tolist()
+    data_dict["cpu_freq"] = stats["cpu_freq"]
+    data_dict["temperature"] = stats["temperature"].tolist()
+    data_dict["memory"] = stats["memory"].tolist()
+    data_dict["power"] = power.tolist()
+    data_dict["tpu_freq"] = stats["tpu_freq"] if "tpu_freq" in stats.keys() else ""
+    data_dict["gpu_freq"] = stats["gpu_freq"] if "gpu_freq" in stats.keys() else ""
 
-
-    # TODO: send ram_usage(has ram usage in MB for the whole run)
+    response = post(data_dict, url="http://transcription.kurg.org:27017/bench/insert_metric")
+    print(response)
 
 
 def post(data, url=None):
     if url is None:
         return
     response = requests.post(url, json=data)
-    print(response)
+    return response.json()
 
 
 if __name__ == '__main__':
