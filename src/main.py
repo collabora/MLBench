@@ -92,7 +92,7 @@ def main(args):
         bus_id = 1
     elif args.backend == "tensorrt":
         bus_id = 2
-    power = utils.parse_power_response(response)
+    power = utils.parse_power_response(response, bus_id)
 
     backend.stop_event.set()
     backend.destroy()
@@ -116,7 +116,7 @@ def main(args):
     data_dict["cpu"] = float(round(np.average(stats["cpu"]), 2)) if "cpu" in stats else ""
     data_dict["memory"] = float(round(np.average(stats["memory"]), 2)) if "memory" in stats else ""
     data_dict["power"] = float(round(np.average(power), 2)) if len(power) else ""
-    data_dict["temperature"] = float(round(np.average(stats["temperature"]), 2)) if "temperature" in stats else ""
+    data_dicbus_idt["temperature"] = float(round(np.average(stats["temperature"]), 2)) if "temperature" in stats else ""
     print(data_dict)
 
     response = post(data_dict, url="http://transcription.kurg.org:27017/bench/insert")
