@@ -13,13 +13,13 @@ import sensors
 
 
 
-def preprocess_img(filename):
+def preprocess_img(filename, size=(224,224)):
     input_image = Image.open(filename)
     if input_image.mode != 'RGB':
         input_image = input_image.convert('RGB')
     preprocess = transforms.Compose([
-        transforms.Resize(256),
-        transforms.CenterCrop(224),
+        transforms.Resize(size[0]),
+        transforms.CenterCrop(size[0]),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
     ])
@@ -86,10 +86,11 @@ def extract_tegrastats_info(output):
     # CPU utilization (e.g., "CPU [28%@614,16%@614,12%@614,19%@614]")
     cpu_util_match = re.search(r'CPU \[([\d%@,]+)\]', output)
     if cpu_util_match:
-        cpu_values = [int(val.split('%')[0]) for val in cpu_util_match.group(1).split(',')]
-        cpu_utilization = sum(cpu_values) / len(cpu_values)
+        cpu_utilization = [int(val.split('%')[0]) for val in cpu_util_match.group(1).split(',')]
+        cpu_freq = [int(val.split('%')[1][1:]) for val in cpu_util_match.group(1).split(',')]
     else:
         cpu_utilization = None
+        cpu_freq = None
 
     # GPU (e.g. GR3D_FREQ 61%)
     gpu_util_match = re.search(r'GR3D_FREQ (\d+)%', output)
@@ -105,7 +106,7 @@ def extract_tegrastats_info(output):
     else:
         temperature = None
 
-    return ram_usage, cpu_utilization, gpu_utilisation, temperature
+    return ram_usage, cpu_utilization, gpu_utilisation, temperature, cpu_freq
 
 
 def read_tegrastats_output(process, output_queue, stop_event):
@@ -113,10 +114,10 @@ def read_tegrastats_output(process, output_queue, stop_event):
         output = process.stdout.readline()
         if not output:
             break
-        ram_usage, cpu_utilization, gpu_utilization, temperature = extract_tegrastats_info(output.decode().strip())
+        ram_usage, cpu_utilization, gpu_utilization, temperature, cpu_freq = extract_tegrastats_info(output.decode().strip())
         if ram_usage is not None or cpu_utilization is not None or \
          gpu_utilization is not None or temperature is not None:
-            output_queue.put((ram_usage, cpu_utilization, gpu_utilization, temperature))
+            output_queue.put((ram_usage, cpu_utilization, gpu_utilization, temperature, cpu_freq))
     process.terminate()
 
 
@@ -197,11 +198,13 @@ def get_stats_rockpi(output_queue, stop_event):
         output_queue.put((cpu_usage, ram_usage, temp/1000, cpu_freq))
 
 
-def parse_power_response(response):
+def parse_power_response(response, bus_id=None):
+    if bus_id is None:
+        raise ValueError("bus_id is None.")
     vbus = response["vbus"]
     ibus = response["ibus"]
-    volts = vbus["vbus1"]
-    mAmps = ibus["ibus1"]
+    volts = vbus[f"vbus{bus_id}"]
+    mAmps = ibus[f"ibus{bus_id}"]
 
     power = [volts * mAmps * 1000 for volts, mAmps in zip(volts, mAmps)]
 

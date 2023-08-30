@@ -33,10 +33,7 @@ def main(args):
     # preprocess and save np array
     jpeg_files_list = os.listdir(args.imagenet)
 
-    if args.backend == "tflite":
-        preprocess_func = backend.get_preprocess_func(args.model_name)
-    else:
-        preprocess_func = utils.preprocess_img
+    preprocess_func = backend.get_preprocess_func(args.model_name)
     
     if args.count:
         jpeg_files_list = jpeg_files_list[:args.count]
@@ -91,6 +88,10 @@ def main(args):
             accuracy.append(0)
     print(f"end time---- {time.localtime()}")
     response = sensors.stop_PAC1931()
+    if args.backend == "tflite":
+        bus_id = 1
+    elif args.backend == "tensorrt":
+        bus_id = 2
     power = utils.parse_power_response(response)
 
     backend.stop_event.set()
@@ -137,9 +138,11 @@ def main(args):
     data_dict["power"] = power.tolist()
     data_dict["tpu_freq"] = stats["tpu_freq"] if "tpu_freq" in stats.keys() else ""
     data_dict["gpu_freq"] = stats["gpu_freq"] if "gpu_freq" in stats.keys() else ""
+    data_dict["gpu_util"] = stats["gpu_util"] if "gpu_util" in stats.keys() else ""
 
     response = post(data_dict, url="http://transcription.kurg.org:27017/bench/insert_metric")
-    print(response)
+    with open(os.path.join(args.results_dir, args.model_name, "results_stats.json"), 'w') as json_file:
+        json.dump(data_dict, json_file)
 
 
 def post(data, url=None):

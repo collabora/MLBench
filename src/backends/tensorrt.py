@@ -36,6 +36,13 @@ class TRTBackend(Backend):
     def version(self):
         return trt.__version__
     
+    def get_preprocess_func(self, model_name):
+        model_names = ["resnet50", "mobilenet_v2", "mobilenet_v3_small", "mboilenet_v2_large" , \
+            "inception_v3", "inception_v4", "efficientnet_s", "efficientnet_m", "efficientnet_l"]
+        if model_name not in model_names:
+            raise ValueError(f"Please provide a valid model name from {model_names}")
+        return utils.preprocess_img
+    
     def warmup(self, inputs, warmup_steps=100):
         for step in range(warmup_steps):
             self(inputs)
@@ -128,12 +135,13 @@ class TRTBackend(Backend):
         cuda.memcpy_htod_async(
             self._inputs[0]['device'], self._inputs[0]['host'], self._stream)
         
+        start = time.time()
         # run inference
         self._context.execute_async(
             batch_size=1,
             bindings=self._bindings,
             stream_handle=self._stream.handle)
-
+        infer_time = time.time() - start
         # fetch outputs from gpu
         for out in self._outputs:
             cuda.memcpy_dtoh_async(out['host'], out['device'], self._stream)
@@ -141,7 +149,7 @@ class TRTBackend(Backend):
         # synchronize stream
         self._stream.synchronize()
         self._ctx.pop()
-        return [out['host'] for out in self._outputs]
+        return [out['host'] for out in self._outputs], infer_time
 
     def destroy(self):
         """Destroy if any context in the stack.
@@ -167,22 +175,25 @@ class TRTBackend(Backend):
         self.tegrastats_thread.start()
     
     def get_avg_stats(self):
-        ram_usage, cpu_util, gpu_util, temp = [], [], [], []
+        ram_usage, cpu_util, gpu_util, temp, cpu_freq = [], [], [], [], []
         
         while not self.output_queue.empty():
-            r,c,g,t = self.output_queue.get()
+            r,c,g,t, cf = self.output_queue.get()
             ram_usage.append(r)
             cpu_util.append(c)
             gpu_util.append(g)
             temp.append(t)
-        ram_usage, cpu_util, gpu_util, temp = np.array(ram_usage), np.array(cpu_util), \
-                        np.array(gpu_util), np.array(temp)
+            cpu_freq.append(cf)
+        ram_usage, cpu_util, temp = np.array(ram_usage), np.array(cpu_util),  np.array(temp)
         
-        avg_ram, avg_cpu, avg_gpu, avg_temp = np.sum(ram_usage) / len(ram_usage), \
-            np.sum(cpu_util) / len(cpu_util), \
-            np.sum(gpu_util) / len(gpu_util), \
-            np.sum(temp) / len(temp)
-        return round(avg_ram, 3), round(avg_cpu, 3), round(avg_gpu, 3), round(avg_temp, 3)
+        stats = {
+            "cpu": cpu_util,
+            "memory": ram_usage,
+            "temperature": temp,
+            "gpu_util": gpu_util,
+            "cpu_freq": cpu_freq
+        }
+        return stats
 
     def get_pred(self, outputs):
         return np.array(outputs).argmax()
