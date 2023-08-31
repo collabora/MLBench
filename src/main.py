@@ -5,7 +5,7 @@ import os
 import numpy as np
 import time
 import requests
-import sensors
+import metrics
 
 
 def main(args):
@@ -74,7 +74,7 @@ def main(args):
         npy_arrays = npy_arrays[:args.count]
 
     # start power measuring
-    response = sensors.start_PAC1931()
+    response = metrics.start_PAC1931()
     print(f"start time---- {time.localtime()}")
     for npy_arr in tqdm(npy_arrays,  desc="Running inference"):
         inputs = np.load(os.path.join(args.preprocessed_dir, npy_arr))
@@ -87,7 +87,7 @@ def main(args):
         else:
             accuracy.append(0)
     print(f"end time---- {time.localtime()}")
-    response = sensors.stop_PAC1931()
+    response = metrics.stop_PAC1931()
     if args.backend == "tflite":
         bus_id = 1
     elif args.backend == "tensorrt":
