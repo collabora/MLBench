@@ -56,17 +56,17 @@ def handle_firefly_rk3399_cpu_freq():
     cpu5_freq = 0
 
     with open(r"/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq") as f:
-        cpu0_freq = float(f.readline())
+        cpu0_freq = float(f.readline())/1000
     with open(r"/sys/devices/system/cpu/cpu1/cpufreq/scaling_cur_freq") as f:
-        cpu1_freq = float(f.readline())
+        cpu1_freq = float(f.readline())/1000
     with open(r"/sys/devices/system/cpu/cpu2/cpufreq/scaling_cur_freq") as f:
-        cpu2_freq = float(f.readline())
+        cpu2_freq = float(f.readline())/1000
     with open(r"/sys/devices/system/cpu/cpu3/cpufreq/scaling_cur_freq") as f:
-        cpu3_freq = float(f.readline())
+        cpu3_freq = float(f.readline())/1000
     with open(r"/sys/devices/system/cpu/cpu4/cpufreq/scaling_cur_freq") as f:
-        cpu4_freq = float(f.readline())
+        cpu4_freq = float(f.readline())/1000
     with open(r"/sys/devices/system/cpu/cpu5/cpufreq/scaling_cur_freq") as f:
-        cpu5_freq = float(f.readline())
+        cpu5_freq = float(f.readline())/1000
 
     return [cpu0_freq, cpu1_freq, cpu2_freq, cpu3_freq, cpu4_freq, cpu5_freq]
 

@@ -195,7 +195,7 @@ def get_stats_rockpi(output_queue, stop_event):
         cpu_usage = sensors.get_cpu_usage()
         ram_usage = sensors.get_memory_usage()[0]
         temp = np.sum(sensors.handle_firefly_rk3399_temp())/2
-        output_queue.put((cpu_usage, ram_usage, temp/1000, cpu_freq))
+        output_queue.put((cpu_usage, ram_usage, temp/1000,cpu_freq))
 
 
 def parse_power_response(response, bus_id=None):
