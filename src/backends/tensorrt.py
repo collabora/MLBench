@@ -37,7 +37,7 @@ class TRTBackend(Backend):
         return trt.__version__
     
     def get_preprocess_func(self, model_name):
-        model_names = ["resnet50", "mobilenet_v2", "mobilenet_v3_small", "mboilenet_v2_large" , \
+        model_names = ["resnet50", "mobilenet_v2", "mobilenet_v3_small", "mobilenet_v3_large" , \
             "inception_v3", "inception_v4", "efficientnet_s", "efficientnet_m", "efficientnet_l"]
         if model_name not in model_names:
             raise ValueError(f"Please provide a valid model name from {model_names}")
@@ -132,22 +132,23 @@ class TRTBackend(Backend):
         self._inputs[0]['host'] = inputs.ravel()
 
         # transfer data to the gpu
+        start = time.time()
         cuda.memcpy_htod_async(
             self._inputs[0]['device'], self._inputs[0]['host'], self._stream)
         
-        start = time.time()
         # run inference
         self._context.execute_async(
             batch_size=1,
             bindings=self._bindings,
             stream_handle=self._stream.handle)
-        infer_time = time.time() - start
+    
         # fetch outputs from gpu
         for out in self._outputs:
             cuda.memcpy_dtoh_async(out['host'], out['device'], self._stream)
 
         # synchronize stream
         self._stream.synchronize()
+        infer_time = time.time() - start
         self._ctx.pop()
         return [out['host'] for out in self._outputs], infer_time
 
