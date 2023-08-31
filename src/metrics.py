@@ -2,12 +2,14 @@ import time
 import psutil
 import requests
 
+
 def handle_coral_dev_board_temp():
 
     current_temp = 0
     with open(r"/sys/class/thermal/thermal_zone0/temp") as f:
         current_temp = float(f.readline())
     return [current_temp / 1000.0]
+
 
 def handle_coral_dev_board_tpu_freq():
 
@@ -27,6 +29,7 @@ def handle_coral_dev_board_tpu_freq():
             return [250.0]
     return [500.0]
 
+
 def handle_coral_dev_board_cpu_freq():
     cpu0_freq = 0
     cpu1_freq = 0
@@ -34,14 +37,15 @@ def handle_coral_dev_board_cpu_freq():
     cpu3_freq = 0
 
     with open(r"/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq") as f:
-        cpu0_freq = float(f.readline())
+        cpu0_freq = float(f.readline()) / 1000.0
     with open(r"/sys/devices/system/cpu/cpu1/cpufreq/scaling_cur_freq") as f:
-        cpu1_freq = float(f.readline())
+        cpu1_freq = float(f.readline()) / 1000.0
     with open(r"/sys/devices/system/cpu/cpu2/cpufreq/scaling_cur_freq") as f:
-        cpu2_freq = float(f.readline())
+        cpu2_freq = float(f.readline()) / 1000.0
     with open(r"/sys/devices/system/cpu/cpu3/cpufreq/scaling_cur_freq") as f:
-        cpu3_freq = float(f.readline())
+        cpu3_freq = float(f.readline()) / 1000.0
     return [cpu0_freq, cpu1_freq, cpu2_freq, cpu3_freq]
+
 
 def handle_firefly_rk3399_cpu_freq():
     cpu0_freq = 0
@@ -66,9 +70,11 @@ def handle_firefly_rk3399_cpu_freq():
 
     return [cpu0_freq, cpu1_freq, cpu2_freq, cpu3_freq, cpu4_freq, cpu5_freq]
 
+
 def handle_firefly_rk3399_gpu_freq():
     with open(r"/sys/devices/system/cpu/cpufreq/policy4/cpuinfo_cur_freq") as f:
         return [float(f.readline())]
+
 
 def handle_firefly_rk3399_temp():
     thermal_zone0 = 0
@@ -79,6 +85,7 @@ def handle_firefly_rk3399_temp():
         thermal_zone1 = float(f.readline())
     return [thermal_zone0, thermal_zone1]
 
+
 def get_cpu_usage():
     return psutil.cpu_percent(interval=1, percpu=True)
 
@@ -86,16 +93,20 @@ def get_cpu_usage():
 def get_memory_usage():
     return [psutil.virtual_memory()[3] / (1024*1024)]
 
+
 def handle_coral_dev_board_cpu_times():
     return psutil.cpu_times_percent()
 
+
 def handle_coral_dev_board_cpu_stats():
     return psutil.cpu_stats()
+
 
 def start_PAC1931():
     url = "http://192.168.42.151:8096/power-start"
     response = requests.get(url)
     return response.json()
+
 
 def stop_PAC1931():
     url = "http://192.168.42.151:8096/power-stop"
