@@ -36,7 +36,7 @@ class TfliteBackend(Backend):
     
     def get_preprocess_func(self, model_name):
         model_names = ["resnet50", "mobilenet_v1", "mobilenet_v2", "mobilenet_v3", "inception_v1", "inception_v2", \
-            "inception_v3", "inception_v4", "efficientnet_s", "efficientnet_m", "efficientnet_l"]
+            "inception_v3", "inception_v4", "efficientnet_small_b0", "efficientnet_medium_b1", "efficientnet_large_b3"]
         if model_name not in model_names:
             raise ValueError(f"Please provide a valid model name from {model_names}")
         
@@ -54,7 +54,6 @@ class TfliteBackend(Backend):
         self.input_details = self.interpreter.get_input_details()[0]
         self.output_details = self.interpreter.get_output_details()[0]
         
-        # if self.device == "tpu":
         params = self.input_details['quantization_parameters']
         self.input_scale = params['scales']
         self.input_zero_point = params['zero_points']
