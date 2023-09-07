@@ -32,7 +32,7 @@ def main(args):
     
     if args.backend in ["onnxruntime"]:
         from backends.onnx_backend import ONNXBackend
-        backend = ONNXBackend(name="onnxruntime")
+        backend = ONNXBackend(name="onnxruntime", device=args.device)
         data = np.ones((1, 3, 224, 224), dtype=np.float32)
 
     
@@ -70,7 +70,7 @@ def main(args):
         print("backend is none")
         return
     
-    backend.load_backend(args.model_path, model_name=args.model_name, device="cpu")
+    backend.load_backend(args.model_path, model_name=args.model_name)
     backend.warmup(data)
 
     backend.capture_stats()
@@ -212,7 +212,13 @@ if __name__ == '__main__':
         "--results_dir",
         default=None,
         type=str,
-        help="no of images to run benchmark on"
+        help="directory to save results"
+    )
+    parser.add_argument(
+        "--device",
+        default="cpu",
+        type=str,
+        help="device to run benchmark on"
     )
     args = parser.parse_args()
     main(args)

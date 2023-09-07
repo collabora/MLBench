@@ -13,10 +13,15 @@ from backends.backend import Backend
 
 
 class ONNXBackend(Backend):
-    def __init__(self, name, precision=None):
+    def __init__(self, name, precision=None, device="cpu"):
         super(ONNXBackend, self).__init__(name)
         self.precision = "fp32" if precision is None else precision
-        self.accelerator = utils.build_and_run_device_query()
+        self.device = device
+        if self.device in ["cuda", "gpu"]:
+            self.accelerator = utils.build_and_run_device_query()
+        else:
+            self.accelerator = ""
+        
     
     def get_accelerator(self):
         return self.accelerator
@@ -38,9 +43,9 @@ class ONNXBackend(Backend):
         for step in range(warmup_steps):
             self(inputs)
 
-    def load_backend(self, model_path, model_name, device="cuda"):
+    def load_backend(self, model_path, model_name):
         self.model_name = model_name
-        if device == "cuda" and len(ort.get_all_providers()) > 1:
+        if self.device == "cuda" and len(ort.get_all_providers()) > 1:
             self.model = ort.InferenceSession(model_path, providers=["CUDAExecutionProvider"])
         else:
             self.model = ort.InferenceSession(model_path, providers=["CPUExecutionProvider"])
