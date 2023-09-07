@@ -30,6 +30,12 @@ def main(args):
         backend = NCNNBackend()
         data = np.ones((1, 3, 224, 224), dtype=np.float32)
     
+    if args.backend in ["onnxruntime"]:
+        from backends.onnx_backend import ONNXBackend
+        backend = ONNXBackend(name="onnxruntime")
+        data = np.ones((1, 3, 224, 224), dtype=np.float32)
+
+    
     # preprocess and save np array
     jpeg_files_list = os.listdir(args.imagenet)
 
@@ -64,7 +70,7 @@ def main(args):
         print("backend is none")
         return
     
-    backend.load_backend(args.model_path, model_name=args.model_name)
+    backend.load_backend(args.model_path, model_name=args.model_name, device="cpu")
     backend.warmup(data)
 
     backend.capture_stats()
@@ -88,10 +94,15 @@ def main(args):
             accuracy.append(0)
     print(f"end time---- {time.localtime()}")
     response = metrics.stop_PAC1931()
-    if args.backend == "tflite":
+
+    board_name = utils.get_device_model()
+    if board_name == "Freescale i.MX8MQ Phanbell":
         bus_id = 1
-    elif args.backend == "tensorrt":
+    elif board_name == "NVIDIA Jetson Nano 2GB Developer Kit":
         bus_id = 2
+    else:
+        bus_id = 3
+
     power = utils.parse_power_response(response, bus_id)
 
     backend.stop_event.set()
