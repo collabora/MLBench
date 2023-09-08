@@ -5,7 +5,7 @@ import os
 import numpy as np
 import time
 import requests
-import sensors
+import metrics
 
 
 def main(args):
@@ -31,6 +31,12 @@ def main(args):
         from backends.ncnn import NCNNBackend
         backend = NCNNBackend()
         data = np.ones((1, 3, 224, 224), dtype=np.float32)
+    
+    if args.backend in ["onnxruntime"]:
+        from backends.onnx_backend import ONNXBackend
+        backend = ONNXBackend(name="onnxruntime", device=args.device)
+        data = np.ones((1, 3, 224, 224), dtype=np.float32)
+
     
     # preprocess and save np array
     jpeg_files_list = os.listdir(args.imagenet)
@@ -76,7 +82,7 @@ def main(args):
         npy_arrays = npy_arrays[:args.count]
 
     # start power measuring
-    response = sensors.start_PAC1931()
+    response = metrics.start_PAC1931()
     print(f"start time---- {time.localtime()}")
     for npy_arr in tqdm(npy_arrays,  desc="Running inference"):
         inputs = np.load(os.path.join(args.preprocessed_dir, npy_arr))
@@ -89,10 +95,12 @@ def main(args):
         else:
             accuracy.append(0)
     print(f"end time---- {time.localtime()}")
-    response = sensors.stop_PAC1931()
-    if args.backend == "tflite" and args.device=="tpu":
+    response = metrics.stop_PAC1931()
+
+    board_name = utils.get_device_model()
+    if board_name == "Freescale i.MX8MQ Phanbell":
         bus_id = 1
-    elif args.backend == "tensorrt":
+    elif board_name == "NVIDIA Jetson Nano 2GB Developer Kit":
         bus_id = 2
     else:
         bus_id = 3
@@ -206,7 +214,13 @@ if __name__ == '__main__':
         "--results_dir",
         default=None,
         type=str,
-        help="no of images to run benchmark on"
+        help="directory to save results"
+    )
+    parser.add_argument(
+        "--device",
+        default="cpu",
+        type=str,
+        help="device to run benchmark on"
     )
     parser.add_argument(
         "--device",
