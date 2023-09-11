@@ -222,11 +222,6 @@ if __name__ == '__main__':
         type=str,
         help="device to run benchmark on"
     )
-    parser.add_argument(
-        "--device",
-        default=None,
-        type=str,
-        help="device to run benchmark on"
-    )
+
     args = parser.parse_args()
     main(args)
