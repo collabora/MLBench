@@ -21,8 +21,10 @@ def main(args):
         data = np.ones((1 * 3 * 224 * 224), dtype=np.float32)
     
     if args.backend == "tflite":
+        if args.device == None:
+            raise ValueError("Please mention the device to run tflite backend --device tpu/cpu")
         from backends.tflite import TfliteBackend
-        backend = TfliteBackend(name="tflite")
+        backend = TfliteBackend(name="tflite", device=args.device)
         data = np.ones((args.input_size[0], args.input_size[1], 3), dtype=np.float32)
     
     if args.backend == "ncnn":
@@ -139,7 +141,7 @@ def main(args):
     with open(os.path.join(args.results_dir, args.model_name, "results.json"), 'w') as json_file:
         json.dump(data_dict, json_file)
 
-    # Send detailed metrics to the db
+    # Send detailed sensors to the db
     data_dict = {}
     data_dict["benchmark_id"] = response["benchmark_id"]
     data_dict["cpu_usage"] = stats["cpu"].tolist()
@@ -217,6 +219,12 @@ if __name__ == '__main__':
     parser.add_argument(
         "--device",
         default="cpu",
+        type=str,
+        help="device to run benchmark on"
+    )
+    parser.add_argument(
+        "--device",
+        default=None,
         type=str,
         help="device to run benchmark on"
     )
