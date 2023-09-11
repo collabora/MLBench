@@ -21,7 +21,6 @@ class ONNXBackend(Backend):
             self.accelerator = utils.build_and_run_device_query()
         else:
             self.accelerator = ""
-        
     
     def get_accelerator(self):
         return self.accelerator
@@ -33,8 +32,7 @@ class ONNXBackend(Backend):
         return ort.__version__
     
     def get_preprocess_func(self, model_name):
-        model_names = ["resnet50", "mobilenet_v2", "mobilenet_v3_small", "mobilenet_v3_large" , \
-            "inception_v3", "inception_v4", "efficientnet_s", "efficientnet_m", "efficientnet_l"]
+        model_names = ["mobilenet_v2", "mobilenet_v3_small", "mobilenet_v3_large"]
         if model_name not in model_names:
             raise ValueError(f"Please provide a valid model name from {model_names}")
         return utils.preprocess_img
@@ -56,8 +54,9 @@ class ONNXBackend(Backend):
     def __call__(self, inputs):
         if len(inputs.shape) == 3:
             inputs = np.expand_dims(inputs, axis=0)
-        start = time.time()
         input_dict = {self.input_name: inputs.astype(np.float32)}
+
+        start = time.time()
         outputs = self.model.run([self.output_name], input_dict)[0]
         infer_time = time.time() - start
         return outputs, infer_time
