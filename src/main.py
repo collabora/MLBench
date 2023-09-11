@@ -32,7 +32,7 @@ def main(args):
         backend = NCNNBackend()
         data = np.ones((1, 3, 224, 224), dtype=np.float32)
     
-    if args.backend in ["onnxruntime"]:
+    if args.backend in ["onnx", "onnxruntime"]:
         from backends.onnx_backend import ONNXBackend
         backend = ONNXBackend(name="onnxruntime", device=args.device)
         data = np.ones((1, 3, 224, 224), dtype=np.float32)
