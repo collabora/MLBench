@@ -38,7 +38,7 @@ class TRTBackend(Backend):
     
     def get_preprocess_func(self, model_name):
         model_names = ["resnet50", "mobilenet_v2", "mobilenet_v3_small", "mobilenet_v3_large" , \
-            "inception_v3", "inception_v4", "efficientnet_s", "efficientnet_m", "efficientnet_l"]
+            "inception_v3", "inception_v4", "efficientnet_small_b0", "efficientnet_medium_b1", "efficientnet_large_b3"]
         if model_name not in model_names:
             raise ValueError(f"Please provide a valid model name from {model_names}")
         return utils.preprocess_img
