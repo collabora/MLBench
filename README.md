@@ -1,6 +1,6 @@
 # MLBench
 
-Welcome to MLBench! We've developed a benchmarking framework to assess the performance of Machine Learning models on a variety of hardware platforms, including Coral TPU, Rockpi RK3399, and Jetson Nano(we are expanding the list). Our versatile framework accommodates multiple deep learning frameworks and offers in-depth performance metrics, covering accuracy, latency, temperature, power consumption, memory usage, GPU utilization, CPU core frequencies and much more. All these insights are neatly organized and displayed on an interactive dashboard, making it effortless to compare and visualize the results.
+Welcome to MLBench! We've developed a benchmarking framework to assess the performance of Machine Learning models on a variety of hardware platforms, including Coral TPU, Rockpi RK3399, and Jetson Nano(we are expanding the list). MLBench accommodates multiple deep learning frameworks and offers in-depth performance metrics, covering accuracy, latency, temperature, power consumption, memory usage, GPU utilization, CPU core frequencies and much more. All these insights are neatly organized and displayed on an interactive dashboard, making it effortless to compare and visualize the results.
 
 ## Table of Contents
 - [Introduction](#introduction)
@@ -36,13 +36,18 @@ Benchmarking Machine Learning models on diverse hardware platforms is essential 
 
 - Hardware Setup
  - Ensure that your hardware platforms are properly connected and configured for benchmarking.
- - Connect each hardware platform to the power monitoring board. This board will track power consumption in real-time during the benchmark run. This is how our setup looks.
+ - Connect each hardware platform to the power monitoring board. This board will track power consumption in real-time during the benchmark run. This is how our setup looks.[Link to our power monitoring setup]
  - During the benchmarking process, the power monitoring board will record power consumption data, which will be integrated into the benchmark results. MLBench takes care of collecting and processing this data, so you can easily analyze power consumption alongside other performance metrics.
 
 - Install requirements based on the hardware
 ```bash
+ cd MLBench/
  pip install -r requirements.txt
- TODO: add hardware specific installation scripts
+```
+
+- Install hardware specific packages
+```bash
+ bash scripts/setup_nano.sh
 ```
 
 - Download the imagenet validation set
