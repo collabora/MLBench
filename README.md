@@ -39,7 +39,7 @@ Benchmarking Machine Learning models on diverse hardware platforms is essential 
  - Connect each hardware platform to the power monitoring board. This board will track power consumption in real-time during the benchmark run. This is how our setup looks.[Link to our power monitoring setup]
  - During the benchmarking process, the power monitoring board will record power consumption data, which will be integrated into the benchmark results. MLBench takes care of collecting and processing this data, so you can easily analyze power consumption alongside other performance metrics.
 
-- Install requirements based on the hardware
+- Install requirements
 ```bash
  cd MLBench/
  pip install -r requirements.txt
@@ -47,7 +47,8 @@ Benchmarking Machine Learning models on diverse hardware platforms is essential 
 
 - Install hardware specific packages
 ```bash
- bash scripts/setup_nano.sh
+ bash scripts/setup_nano.sh     # jetson nano
+ bash scripts/setup_rk3399.sh   # rockpi rk3399
 ```
 
 - Download the imagenet validation set
@@ -57,12 +58,25 @@ Benchmarking Machine Learning models on diverse hardware platforms is essential 
 ```
 
 - Run the benchmark
-```bash
- python3 src/main.py --backend tensorrt --model_path /mnt/workspace/models/mobilenetv3_small_fp32.engine --model_name mobilenet_v3_small --preprocessed-dir /mnt/workspace/imagenet_preprocessed_224 --results_dir /mnt/workspace/mlbench_results --input_size 224,224
-```
+    - TensorRT on jetson nano:
+    ```bash
+        python3 src/main.py --backend tensorrt --model_path "/path/to/mobilenet_v3_small_fp32.engine" --model_name mobilenet_v3_small --preprocessed-dir "path/to/precprocessed_imagenet" --results_dir /home/mlbench_results --input_size 224,224
+    ```
+    - onnxruntime-gpu on jetson nano:
+    ```bash
+        python3 src/main.py --backend onnxruntime --model_path "/path/to/mobilenet_v3_small.onnx" --model_name mobilenet_v3_small --preprocessed-dir "path/to/precprocessed_imagenet" --results_dir /home/mlbench_results --input_size 224,224
+    ```
+    - Tflite on Coral TPU
+    ```bash
+        python3 src/main.py --backend tflite --model_path "/path/to/mobilenet_v3.tflite" --model_name mobilenet_v3 --preprocessed-dir "path/to/precprocessed_imagenet" --results_dir /home/mlbench_results --input_size 224,224 --device tpu
+    ```
+    - Tflite on Rockpi RK3399
+    ```bash
+        python3 src/main.py --backend tflite --model_path "/path/to/mobilenet_v3.tflite" --model_name mobilenet_v3 --preprocessed-dir "path/to/precprocessed_imagenet" --results_dir /home/mlbench_results --input_size 224,224 --device cpu
+    ```
 
 ## MLBench Dashboard
-Our project features an interactive results dashboard that empowers you to effortlessly compare and visualize benchmarking results. Access the [MLBench Dashboard here](mlbench.kurg.org:5000).
+Our project features an interactive results dashboard that empowers you to effortlessly compare and visualize benchmarking results. Access the [MLBench Dashboard here](https://mlbench.kurg.org).
 
 
 ## Contributing
