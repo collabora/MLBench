@@ -21,14 +21,22 @@ def main(args):
         data = np.ones((1 * 3 * 224 * 224), dtype=np.float32)
     
     if args.backend == "tflite":
+        if args.device == None:
+            raise ValueError("Please mention the device to run tflite backend --device tpu/cpu")
         from backends.tflite import TfliteBackend
-        backend = TfliteBackend(name="tflite")
+        backend = TfliteBackend(name="tflite", device=args.device)
         data = np.ones((args.input_size[0], args.input_size[1], 3), dtype=np.float32)
     
     if args.backend == "ncnn":
         from backends.ncnn import NCNNBackend
         backend = NCNNBackend()
         data = np.ones((1, 3, 224, 224), dtype=np.float32)
+    
+    if args.backend in ["onnx", "onnxruntime"]:
+        from backends.onnx_backend import ONNXBackend
+        backend = ONNXBackend(name="onnxruntime", device=args.device)
+        data = np.ones((1, 3, 224, 224), dtype=np.float32)
+
     
     # preprocess and save np array
     jpeg_files_list = os.listdir(args.imagenet)
@@ -88,10 +96,15 @@ def main(args):
             accuracy.append(0)
     print(f"end time---- {time.localtime()}")
     response = metrics.stop_PAC1931()
-    if args.backend == "tflite":
+
+    board_name = utils.get_device_model()
+    if board_name == "Freescale i.MX8MQ Phanbell":
         bus_id = 1
-    elif args.backend == "tensorrt":
+    elif board_name == "NVIDIA Jetson Nano 2GB Developer Kit":
         bus_id = 2
+    else:
+        bus_id = 3
+
     power = utils.parse_power_response(response, bus_id)
 
     backend.stop_event.set()
@@ -128,7 +141,7 @@ def main(args):
     with open(os.path.join(args.results_dir, args.model_name, "results.json"), 'w') as json_file:
         json.dump(data_dict, json_file)
 
-    # Send detailed metrics to the db
+    # Send detailed sensors to the db
     data_dict = {}
     data_dict["benchmark_id"] = response["benchmark_id"]
     data_dict["cpu_usage"] = stats["cpu"].tolist()
@@ -201,7 +214,14 @@ if __name__ == '__main__':
         "--results_dir",
         default=None,
         type=str,
-        help="no of images to run benchmark on"
+        help="directory to save results"
     )
+    parser.add_argument(
+        "--device",
+        default="cpu",
+        type=str,
+        help="device to run benchmark on"
+    )
+
     args = parser.parse_args()
     main(args)
