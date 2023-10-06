@@ -11,7 +11,6 @@ from queue import Queue
 import utils
 from backends.backend import Backend
 
-
 class ONNXBackend(Backend):
     def __init__(self, name, precision=None, device="cpu"):
         super(ONNXBackend, self).__init__(name)
@@ -36,7 +35,7 @@ class ONNXBackend(Backend):
         if model_name not in model_names:
             raise ValueError(f"Please provide a valid model name from {model_names}")
         return utils.preprocess_img
-    
+
     def warmup(self, inputs, warmup_steps=100):
         for step in range(warmup_steps):
             self(inputs)
