@@ -1,0 +1,80 @@
+/* Global Styles */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f6f6f6;
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Main Container */
+  .overview-container {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Header Styles */
+  .overview-header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  
+  .overview-title {
+    color: #65428a;
+    font-size: 3rem;
+    margin-bottom: 10px;
+  }
+  
+  .overview-description {
+    font-size: 1.2rem;
+    color: #333;
+  }
+  
+  /* Section Styles */
+  .overview-section {
+    margin-bottom: 40px;
+  }
+  
+  /* Subtitle Styles */
+  .overview-subtitle {
+    color: #65428a;
+    font-size: 2rem;
+    margin-bottom: 10px;
+  }
+  
+  /* List Styles */
+  .overview-list {
+    list-style-type: none;
+    margin-left: 0;
+    padding-left: 0;
+  }
+  
+  .overview-list li {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .overview-list strong {
+    color: #65428a;
+    font-weight: bold;
+    margin-right: 8px;
+  }
+  
+  /* Link Styles */
+  .overview-link {
+    color: #65428a;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease-in-out;
+  }
+  
+  .overview-link:hover {
+    color: #7d5fa5;
+    text-decoration: underline;
+  }
+
+  
