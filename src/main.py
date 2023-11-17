@@ -16,7 +16,12 @@ def main(args):
     data = None
     if args.backend == "tensorrt":
         from backends.tensorrt import TRTBackend
-        precision = "fp16" if "fp16" in args.model_path else "fp32"
+        if args.model_path is not None:
+            precision = "fp16" if "fp16" in args.model_path else "fp32"
+        elif args.precision is not None:
+            precision = args.precision
+        else:
+            precision = "fp16"
         backend = TRTBackend(name="tensorrt", precision=precision)
         data = np.ones((1 * 3 * 224 * 224), dtype=np.float32)
     
@@ -35,7 +40,7 @@ def main(args):
     if args.backend in ["onnx", "onnxruntime"]:
         from backends.onnx_backend import ONNXBackend
         backend = ONNXBackend(name="onnxruntime", device=args.device)
-        data = np.ones((1, 3, 224, 224), dtype=np.float32)
+        data = np.ones((1, 3, args.input_size[0], args.input_size[1]), dtype=np.float32)
 
     
     # preprocess and save np array
@@ -123,6 +128,7 @@ def main(args):
     data_dict["accelerator"] = backend.get_accelerator()
     data_dict["model_name"] = backend.model_name
     data_dict["framework"] = f"{args.backend}"
+    data_dict["version"] = str(backend.version())
     data_dict["latency"] = round(float(np.sum(np_lat)/len(np_lat))*1000, 3)
     data_dict["precision"] = backend.precision
     data_dict["accuracy"] = round(float(np.count_nonzero(np_acc == 1)/len(np_acc))*100, 3)
@@ -138,7 +144,7 @@ def main(args):
     import json
     if not os.path.exists(os.path.join(args.results_dir, args.model_name)):
         os.makedirs(os.path.join(args.results_dir, args.model_name), exist_ok=True)
-    with open(os.path.join(args.results_dir, args.model_name, "results.json"), 'w') as json_file:
+    with open(os.path.join(args.results_dir, args.model_name, f"{backend.precision}_results.json"), 'w') as json_file:
         json.dump(data_dict, json_file)
 
     # Send detailed sensors to the db
@@ -154,7 +160,7 @@ def main(args):
     data_dict["gpu_util"] = stats["gpu_util"] if "gpu_util" in stats.keys() else ""
 
     response = post(data_dict, url="http://transcription.kurg.org:27017/bench/insert_metric")
-    with open(os.path.join(args.results_dir, args.model_name, "results_stats.json"), 'w') as json_file:
+    with open(os.path.join(args.results_dir, args.model_name, f"{backend.precision}_results_stats.json"), 'w') as json_file:
         json.dump(data_dict, json_file)
 
 
@@ -221,6 +227,12 @@ if __name__ == '__main__':
         default="cpu",
         type=str,
         help="device to run benchmark on"
+    )
+    parser.add_argument(
+        "--precision",
+        default=None,
+        type=str,
+        help="tensorrt model precision"
     )
 
     args = parser.parse_args()

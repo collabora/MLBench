@@ -47,6 +47,9 @@ class TfliteBackend(Backend):
 
     def load_backend(self, model_path, model_name=None):
         self.model_name = model_name
+
+        if model_path is None or not os.path.exists(model_path):
+            model_path = utils.download_model(model_name, self.name, device=self.device)
         self.interpreter = self.make_interpreter(model_path)
         
         self.interpreter.allocate_tensors()

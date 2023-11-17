@@ -37,8 +37,8 @@ class TRTBackend(Backend):
         return trt.__version__
     
     def get_preprocess_func(self, model_name):
-        model_names = ["resnet50", "mobilenet_v2", "mobilenet_v3_small", "mobilenet_v3_large" , \
-            "inception_v3", "inception_v4", "efficientnet_s", "efficientnet_m", "efficientnet_l"]
+        model_names = ["resnet50", "mobilenet_v2", "mobilenet_v3_small", "mobilenet_v3_large" , "inception_v1", \
+            "inception_v3", "inception_v4", "efficientnet_small_b0", "efficientnet_medium_b1", "efficientnet_large_b3"]
         if model_name not in model_names:
             raise ValueError(f"Please provide a valid model name from {model_names}")
         return utils.preprocess_img
@@ -61,6 +61,13 @@ class TRTBackend(Backend):
         self._inputs = None
         self._outputs = None
         self._bindings = None
+
+        if model_path is None or not os.path.exists(model_path):
+            if self.version() == '8.2.1.9' and utils.get_device_model() == "NVIDIA Jetson Nano 2GB Developer Kit":
+                print(f"{model_path} doesnt exist! Downloading model for this device ...")
+                model_path = utils.download_model(model_name, self.name, self.precision)
+            else:
+                raise FileNotFoundError(f"Please provide a valid model to load.")
 
         self._load_model(model_path)
         self._allocate_buffers()

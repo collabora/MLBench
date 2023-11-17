@@ -1,0 +1,48 @@
+{
+    "tensorrt": {
+        "mobilenet_v2_fp16": "https://github.com/makaveli10/imagenet-tensorrt-models/raw/master/jetson-nano-2gb/mobilenet_v2_fp16.engine",
+        "mobilenet_v2_fp32": "https://github.com/makaveli10/imagenet-tensorrt-models/raw/master/jetson-nano-2gb/mobilenet_v2.engine",
+        "mobilenetv3_small_fp32": "https://github.com/makaveli10/imagenet-tensorrt-models/raw/master/jetson-nano-2gb/mobilenetv3_small_fp32.engine",
+        "mobilenetv3_small_fp16": "https://github.com/makaveli10/imagenet-tensorrt-models/raw/master/jetson-nano-2gb/mobilenetv3_small_fp16.engine",
+        "mobilenetv3_large_fp16": "https://github.com/makaveli10/imagenet-tensorrt-models/raw/master/jetson-nano-2gb/mobilenetv3_large_fp16.engine",
+        "mobilenetv3_large_fp32": "https://github.com/makaveli10/imagenet-tensorrt-models/raw/master/jetson-nano-2gb/mobilenetv3_large_fp32.engine",
+        "efficientnet_small_b0_fp32": "https://github.com/makaveli10/imagenet-tensorrt-models/raw/master/jetson-nano-2gb/efficientnet_small_fp32.engine",
+        "efficientnet_small_b0_fp16": "https://github.com/makaveli10/imagenet-tensorrt-models/raw/master/jetson-nano-2gb/efficientnet_small_fp16.engine",
+        "efficientnet_medium_b1_fp32": "https://github.com/makaveli10/imagenet-tensorrt-models/raw/master/jetson-nano-2gb/efficientnet_medium_fp32.engine",
+        "efficientnet_medium_b1_fp16": "https://github.com/makaveli10/imagenet-tensorrt-models/raw/master/jetson-nano-2gb/efficientnet_medium_fp16.engine",
+        "efficientnet_large_b3_fp32": "https://github.com/makaveli10/imagenet-tensorrt-models/raw/master/jetson-nano-2gb/efficientnet_large_fp32.engine",
+        "efficientnet_large_b3_fp16": "https://github.com/makaveli10/imagenet-tensorrt-models/raw/master/jetson-nano-2gb/efficientnet_large_fp16.engine",
+        "inception_v3_fp32": "https://github.com/makaveli10/imagenet-tensorrt-models/raw/master/jetson-nano-2gb/inceptionv3_fp32.engine",
+        "inception_v3_fp16": "https://github.com/makaveli10/imagenet-tensorrt-models/raw/master/jetson-nano-2gb/inceptionv3_fp16.engine",
+        "inception_v4_fp32": "https://github.com/makaveli10/imagenet-tensorrt-models/raw/master/jetson-nano-2gb/inceptionv4_fp32.engine",
+        "inception_v4_fp16": "https://github.com/makaveli10/imagenet-tensorrt-models/raw/master/jetson-nano-2gb/inceptionv4_fp16.engine"
+    },
+    "tflite": {
+        "tpu": {
+            "mobilenet_v1": "https://raw.githubusercontent.com/google-coral/test_data/master/tf2_mobilenet_v1_1.0_224_ptq_edgetpu.tflite",
+            "mobilenet_v2": "https://raw.githubusercontent.com/google-coral/test_data/master/tf2_mobilenet_v2_1.0_224_ptq_edgetpu.tflite",
+            "mobilenet_v3": "https://raw.githubusercontent.com/google-coral/test_data/master/tf2_mobilenet_v3_edgetpu_1.0_224_ptq_edgetpu.tflite",
+            "inception_v1": "https://raw.githubusercontent.com/google-coral/test_data/master/inception_v1_224_quant_edgetpu.tflite",
+            "inception_v2": "https://raw.githubusercontent.com/google-coral/test_data/master/inception_v2_224_quant_edgetpu.tflite",
+            "inception_v3": "https://raw.githubusercontent.com/google-coral/test_data/master/inception_v3_299_quant_edgetpu.tflite",
+            "inception_v4": "https://raw.githubusercontent.com/google-coral/test_data/master/inception_v4_299_quant_edgetpu.tflite",
+            "efficientnet_small_b0": "https://raw.githubusercontent.com/google-coral/test_data/master/efficientnet-edgetpu-S_quant_edgetpu.tflite",
+            "efficientnet_medium_b1": "https://raw.githubusercontent.com/google-coral/test_data/master/efficientnet-edgetpu-M_quant_edgetpu.tflite",
+            "efficientnet_large_b3": "https://raw.githubusercontent.com/google-coral/test_data/master/efficientnet-edgetpu-L_quant_edgetpu.tflite",
+            "resnet50": ""
+        },
+        "cpu": {
+            "mobilenet_v1": "https://raw.githubusercontent.com/google-coral/test_data/master/tf2_mobilenet_v1_1.0_224_ptq.tflite",
+            "mobilenet_v2": "https://raw.githubusercontent.com/google-coral/test_data/master/tf2_mobilenet_v2_1.0_224_ptq.tflite",
+            "mobilenet_v3": "https://raw.githubusercontent.com/google-coral/test_data/master/tf2_mobilenet_v3_edgetpu_1.0_224_ptq.tflite",
+            "inception_v1": "https://raw.githubusercontent.com/google-coral/test_data/master/inception_v1_224_quant.tflite",
+            "inception_v2": "https://raw.githubusercontent.com/google-coral/test_data/master/inception_v2_224_quant.tflite",
+            "inception_v3": "https://raw.githubusercontent.com/google-coral/test_data/master/inception_v3_299_quant.tflite",
+            "inception_v4": "https://raw.githubusercontent.com/google-coral/test_data/master/inception_v4_299_quant.tflite",
+            "efficientnet_small_b0": "https://raw.githubusercontent.com/google-coral/test_data/master/efficientnet-edgetpu-S_quant.tflite",
+            "efficientnet_medium_b1": "https://raw.githubusercontent.com/google-coral/test_data/master/efficientnet-edgetpu-M_quant.tflite",
+            "efficientnet_large_b3": "https://raw.githubusercontent.com/google-coral/test_data/master/efficientnet-edgetpu-L_quant.tflite",
+            "resnet50": ""
+        }
+    }
+}

@@ -1,0 +1,38 @@
+.header {
+    background-color: #ece1f8;
+    height: 80px;
+    /* font-size: 32px; */
+}
+.logo {
+    height:50px
+}
+.burger-icon img {
+    height: 50px;
+    /* width: 100%; */
+    cursor: pointer;
+}
+.burger-icon img:hover {
+    filter: invert(27%) sepia(9%) saturate(4504%) hue-rotate(229deg) brightness(95%) contrast(82%);
+
+
+}
+
+button {
+    width: 75px;
+    border-radius: 5px;
+    padding: 2px;
+    background-color: #65428a;
+    color: white;
+}
+
+.navbar-nav li.nav-item:hover {
+    background-color: #65428a; 
+}
+
+.navbar-nav li.nav-item {
+    transition: background-color 0.3s ease; 
+}
+
+.navbar-nav li.nav-item a.nav-link {
+    color: #000000; /* Change to the desired text color */
+}
