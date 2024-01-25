@@ -3,6 +3,7 @@ import sys
 import subprocess
 import re
 import threading
+import json
 import cv2
 import psutil
 import numpy as np
@@ -156,6 +157,7 @@ def get_device_model():
 def build_and_run_device_query():
     # Change the directory to /usr/local/cuda/samples/1_Utilities/deviceQuery
     cuda_dir = "/usr/local/cuda/samples/1_Utilities/deviceQuery"
+    current_dir = os.getcwd()
     os.chdir(cuda_dir)
 
     try:
@@ -164,6 +166,7 @@ def build_and_run_device_query():
 
         # Run the deviceQuery command
         result = subprocess.run(["./deviceQuery"], stdout=subprocess.PIPE, universal_newlines=True, check=True)
+        os.chdir(current_dir)
 
         # Get the output
         output = result.stdout
@@ -177,6 +180,7 @@ def build_and_run_device_query():
             return "Device not found in the output."
     except FileNotFoundError:
         return "deviceQuery or make command not found in the specified CUDA directory."
+    
 
 
 def get_coral_stats(output_queue, stop_event):
@@ -211,6 +215,34 @@ def parse_power_response(response, bus_id=None):
     return np.array(power)
 
 
-# TODO: upload models to drive and auto-download
-def download_model(model_name, backend):
+def download_model(model_name, backend, precision=None, device=None, download_path="~/.cache"):
+    with open("config/models.json", 'r') as json_file:
+        models_dict = json.load(json_file)
+    model_link = None
+    if backend == "tflite":
+        if device is None:
+            raise ValueError("device is none.")
+
+        model_link = models_dict[backend][device][model_name]
+    elif backend == "tensorrt":
+        if precision is None:
+            raise ValueError("precision is none.")
+
+        model_link = models_dict[backend][f"{model_name}_{precision}"]
+
+    if model_link is None:
+        raise ValueError("Model link not found in the models dictionary.")
+
+    download_path = os.path.expanduser(download_path)
+
+    os.makedirs(download_path, exist_ok=True)
+    model_filename = os.path.basename(model_link)
+
+    model_path = os.path.join(download_path, model_filename)
+
+    wget_command = f"wget -O {model_path} {model_link}"
+    try:
+        subprocess.run(wget_command, shell=True, check=True)
+    except subprocess.CalledProcessError as e:
+        raise RuntimeError(f"Failed to download model using wget. Error: {e}")
     return model_path

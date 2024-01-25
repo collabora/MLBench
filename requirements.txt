@@ -1,0 +1,7 @@
+psutil
+numpy
+opencv-python
+pillow
+torchvision
+tqdm
+requests
